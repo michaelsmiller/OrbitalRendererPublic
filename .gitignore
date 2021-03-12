@@ -1,3 +1,5 @@
 OrbitalRenderer
 *.o
 *.spv
+
+x64/

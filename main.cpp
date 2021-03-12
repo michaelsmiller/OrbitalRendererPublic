@@ -210,7 +210,7 @@ private:
   // need to instantiate debugging stuff
   void setupDebugMessenger() {
     if (!enableValidationLayers) return;
-		VkDebugUtilsMessengerCreateInfoEXT createInfo;
+	VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
 
     // instance is the first argument because this object is specific to the instance
@@ -898,6 +898,7 @@ private:
   static std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
+      std::cout << filename << std::endl;
       throw std::runtime_error("Failed to open file");
     }
 

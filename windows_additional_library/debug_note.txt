@@ -1,0 +1,4 @@
+
+If you encounter this runtime error:
+validation layer: loader_get_json: Failed to open JSON file C:\Program Files\NVIDIA Corporation\Nsight Systems 2019.5.2\<some incorrect position>\VkLayer_nsight-sys_windows.json
+then open Registry Editor, goto "Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\Vulkan\ExplicitLayers", change the corresponding value.
