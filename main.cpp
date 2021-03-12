@@ -386,6 +386,7 @@ private:
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+    std::cout << "DeviceName: " << deviceProperties.deviceName << std::endl;
 
     // Checks if there are device extensions supported (probably can't be false if swapChainAdequate but whatever)
     bool extensionsSupported = checkDeviceExtensionSupport(device);
