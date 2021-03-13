@@ -1,8 +1,9 @@
-#include "molecule_reader.h"
 #include <iostream>
 #include <fstream>
 #include <exception>
 #include <string>
+
+#include "molecule_reader.h"
 
 namespace MoleculeReader
 {
@@ -28,7 +29,15 @@ namespace MoleculeReader
                                                   -1, -1, -1, -1, -1,
                                                   -1, -1, 1.63, 1.4, 1.39,
                                                   1.87, -1, 1.85, 1.9, 1.85, 2.02 };
-    const float element_default_vdw_radius = 2.0f;
+    const float element_default_vdw_radius = 2.0;
+    const float element_bond_radius[n_element] = { 0, 0.53, 0.31, 1.67, 1.12, 0.87,
+                                                   0.67, 0.56, 0.48, 0.42, 0.38,
+                                                   1.9, 1.45, 1.18, 1.11, 0.98,
+                                                   0.88, 0.79, 0.71, 2.43, 1.94,
+                                                   1.84, 1.76, 1.71, 1.66, 1.61,
+                                                   1.56, 1.52, 1.49, 1.45, 1.42,
+                                                   1.36, 1.25, 1.14, 1.03, 0.94, 0.88 };
+    const float element_default_bond_radius = 1.0;
 
     const char* xyz_extension = ".xyz";
     const char* ao_extension = ".ao.txt";
@@ -68,9 +77,9 @@ namespace MoleculeReader
         }
     };
 
-    std::vector<MolecularDataOneFrame*> readWholeTrajectory(const char* filename) throw()
+    std::vector<MoleculeStruct::MolecularDataOneFrame*> readWholeTrajectory(const char* const filename)
     {
-        std::vector<MolecularDataOneFrame*> video_data;
+        std::vector<MoleculeStruct::MolecularDataOneFrame*> video_data;
 
         std::string filename_string(filename);
         std::ifstream xyz_file(filename_string + xyz_extension);
@@ -128,7 +137,7 @@ namespace MoleculeReader
             }
             std::getline(C_file, temp); // Skip comment line
 
-            MolecularDataOneFrame* frame = new MolecularDataOneFrame(n_atom, n_ao, n_prim);
+            MoleculeStruct::MolecularDataOneFrame* frame = new MoleculeStruct::MolecularDataOneFrame(n_atom, n_ao, n_prim);
 
             for (int i_atom = 0; i_atom < n_atom; i_atom++)
             {
@@ -151,6 +160,7 @@ namespace MoleculeReader
                 frame->atoms[i_atom].xyz[1] = std::stof(splitted[2]);
                 frame->atoms[i_atom].xyz[2] = std::stof(splitted[3]);
                 frame->atoms[i_atom].vdw_radius = element_vdw_radius[atomic_number] > 0 ? element_vdw_radius[atomic_number] : element_default_vdw_radius;
+                frame->atoms[i_atom].bond_radius = element_bond_radius[atomic_number] > 0 ? element_bond_radius[atomic_number] : element_default_bond_radius;
                 frame->atoms[i_atom].rgb[0] = element_color[atomic_number][0];
                 frame->atoms[i_atom].rgb[1] = element_color[atomic_number][1];
                 frame->atoms[i_atom].rgb[2] = element_color[atomic_number][2];
@@ -185,23 +195,12 @@ namespace MoleculeReader
         return video_data;
     }
 
-    MolecularDataOneFrame::MolecularDataOneFrame(int set_n_atom, int set_n_AO, int set_n_primitive)
+    bool clearTrajectory(std::vector<MoleculeStruct::MolecularDataOneFrame*>& trajectory)
     {
-        this->n_atom = set_n_atom;
-        this->n_AO = set_n_AO;
-        this->n_primitive = set_n_primitive;
+        for (auto it = trajectory.begin(); it != trajectory.end(); it++)
+            delete (*it);
+        trajectory.clear();
 
-        this->atoms = new ChemistryAtom[set_n_atom];
-        this->aos = new AtomicOrbital[set_n_AO];
-        this->primitives = new GaussianPrimitive[set_n_primitive];
-        this->mo_coefficients = new float[set_n_AO];
-    }
-
-    MolecularDataOneFrame::~MolecularDataOneFrame()
-    {
-        delete[] this->atoms;
-        delete[] this->aos;
-        delete[] this->primitives;
-        delete[] this->mo_coefficients;
+        return true;
     }
 }

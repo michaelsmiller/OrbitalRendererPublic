@@ -37,7 +37,9 @@
 #include <algorithm> // for std::min/max
 #include <fstream>
 
+#include "molecule_struct.h"
 #include "molecule_reader.h"
+#include "molecule_kernel.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -1534,8 +1536,11 @@ int main() {
     HelloTriangleApplication app;
 
     try {
-        std::vector<MoleculeReader::MolecularDataOneFrame*> molecule_data
+        std::vector<MoleculeStruct::MolecularDataOneFrame*> trajectory
             = MoleculeReader::readWholeTrajectory("./molecule_demo/demo");
+
+        MoleculeReader::clearTrajectory(trajectory);
+
         app.run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;

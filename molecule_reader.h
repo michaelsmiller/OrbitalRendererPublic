@@ -1,48 +1,11 @@
 #pragma once
 
 #include <vector>
-#include "glm/vec3.hpp"
+#include "molecule_struct.h"
 
 namespace MoleculeReader
 {
-	struct ChemistryAtom
-	{
-		int atomic_number;
-		float rgb[3];
-		float vdw_radius;
-		float xyz[3];
-	};
-	struct AtomicOrbital
-	{
-		int quantum_number;
-		int number_of_primitives;
-		float xyz[3];
-	};
-	struct GaussianPrimitive
-	{
-		float exponent;
-		float contraction;
-	};
-	
-	class MolecularDataOneFrame
-	{
-	public:
-		MolecularDataOneFrame(int set_n_atom, int set_n_AO, int set_n_primitive);
-		~MolecularDataOneFrame();
+	std::vector<MoleculeStruct::MolecularDataOneFrame*> readWholeTrajectory(const char* const filename);
 
-		int n_atom;
-		int n_AO;
-		int n_primitive;
-		ChemistryAtom* atoms;
-		AtomicOrbital* aos;
-		GaussianPrimitive* primitives;
-		float* mo_coefficients;
-
-	private:
-		MolecularDataOneFrame() = delete;
-		MolecularDataOneFrame(const MolecularDataOneFrame&) = delete;
-		MolecularDataOneFrame& operator=(const MolecularDataOneFrame&) = delete;
-	};
-
-	std::vector<MolecularDataOneFrame*> readWholeTrajectory(const char* filename) throw();
+	bool clearTrajectory(std::vector<MoleculeStruct::MolecularDataOneFrame*>& trajectory);
 }
