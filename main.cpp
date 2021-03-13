@@ -37,6 +37,8 @@
 #include <algorithm> // for std::min/max
 #include <fstream>
 
+#include "molecule_reader.h"
+
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -1532,6 +1534,8 @@ int main() {
     HelloTriangleApplication app;
 
     try {
+        std::vector<MoleculeReader::MolecularDataOneFrame*> molecule_data
+            = MoleculeReader::readWholeTrajectory("./molecule_demo/demo");
         app.run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
