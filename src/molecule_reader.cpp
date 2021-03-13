@@ -153,6 +153,7 @@ namespace MoleculeReader
                 if (atomic_number < 0)
                 {
                     std::cout << "Incorrect atom type: " + splitted[0] << std::endl;
+                    delete frame;
                     return video_data;
                 }
                 frame->atoms[i_atom].atomic_number = atomic_number;
@@ -166,6 +167,7 @@ namespace MoleculeReader
                 frame->atoms[i_atom].rgb[2] = element_color[atomic_number][2];
             }
 
+            int prim_count_in_ao = 0;
             for (int i_ao = 0; i_ao < n_ao; i_ao++)
             {
                 std::getline(ao_file, temp);
@@ -176,8 +178,17 @@ namespace MoleculeReader
                 frame->aos[i_ao].quantum_number = std::stoi(splitted[3]);
                 frame->aos[i_ao].number_of_primitives = std::stoi(splitted[4]);
 
+                prim_count_in_ao += frame->aos[i_ao].number_of_primitives;
+
                 std::getline(C_file, temp);
                 frame->mo_coefficients[i_ao] = std::stof(temp);
+            }
+
+            if (prim_count_in_ao != n_prim)
+            {
+                std::cout << "Inconsistent primitive count in primitive file and ao file!" << std::endl;
+                delete frame;
+                return video_data;
             }
 
             for (int i_prim = 0; i_prim < n_prim; i_prim++)

@@ -214,7 +214,7 @@ private:
   // need to instantiate debugging stuff
   void setupDebugMessenger() {
     if (!enableValidationLayers) return;
-	VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
 
     // instance is the first argument because this object is specific to the instance
@@ -247,7 +247,7 @@ private:
     // Need extensions from GLFW to interface directly with this particular system.
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-		auto extensions = getRequiredExtensions();
+        auto extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -599,18 +599,18 @@ private:
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // This is where we put what we use the swap chain for
     // VK_IMAGE_USAGE_TRANSFER_DST_BIT for transferring from 1 swap chain to another for post-processing
 
-		// Different settings if presenting and computing graphics are the same queue or not
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-		uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-		if (indices.graphicsFamily != indices.presentFamily) {
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = 2;
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
-		} else {
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			createInfo.queueFamilyIndexCount = 0; // Optional
-			createInfo.pQueueFamilyIndices = nullptr; // Optional
-		}
+        // Different settings if presenting and computing graphics are the same queue or not
+        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+        uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+        if (indices.graphicsFamily != indices.presentFamily) {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        } else {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0; // Optional
+            createInfo.pQueueFamilyIndices = nullptr; // Optional
+        }
 
     createInfo.preTransform = swapChainSupport.capabilities.currentTransform; // Can uniformly apply transforms to any images in the swap chain
 
@@ -813,7 +813,7 @@ private:
   }
 
   void cleanup() {
-		cleanupSwapChain();
+        cleanupSwapChain();
 
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
@@ -823,9 +823,9 @@ private:
     vkFreeMemory(device, indexBufferMemory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(device, inFlightFences[i], nullptr);
+            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(device, inFlightFences[i], nullptr);
     }
 
     vkDestroyCommandPool(device, commandPool, nullptr);
@@ -833,7 +833,7 @@ private:
     vkDestroyDevice(device, nullptr);
 
     if (enableValidationLayers) {
-			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
 
     vkDestroySurfaceKHR(instance, surface, nullptr);
@@ -868,7 +868,7 @@ private:
 
   // This gets a list of all required extensions, including both GLFW required ones and 
   // ones specified for the validation layers we want
- 	std::vector<const char*> getRequiredExtensions() {
+    std::vector<const char*> getRequiredExtensions() {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -884,7 +884,7 @@ private:
   } 
 
   // This gets called for debug messages
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, // an integer representing verbose < info < warning < error
     VkDebugUtilsMessageTypeFlagsEXT messageType, // general, validation, or performance (efficiency)
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, // struct of pMessage, pObjects, objectCount
@@ -1177,7 +1177,7 @@ private:
 
       if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
         throw std::runtime_error("Failed to create framebuffer!");
-		}
+        }
   }
 
 

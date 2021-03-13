@@ -5,7 +5,7 @@
 
 namespace MoleculeReader
 {
-	std::vector<MoleculeStruct::MolecularDataOneFrame*> readWholeTrajectory(const char* const filename);
+    std::vector<MoleculeStruct::MolecularDataOneFrame*> readWholeTrajectory(const char* const filename);
 
-	bool clearTrajectory(std::vector<MoleculeStruct::MolecularDataOneFrame*>& trajectory);
+    bool clearTrajectory(std::vector<MoleculeStruct::MolecularDataOneFrame*>& trajectory);
 }
