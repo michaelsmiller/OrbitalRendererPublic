@@ -11,14 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="molecule_kernel.cpp" />
-    <ClCompile Include="molecule_reader.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\molecule_kernel.cpp" />
+    <ClCompile Include="src\molecule_reader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="molecule_kernel.h" />
-    <ClInclude Include="molecule_reader.h" />
-    <ClInclude Include="molecule_struct.h" />
+    <ClInclude Include="src\molecule_kernel.h" />
+    <ClInclude Include="src\molecule_reader.h" />
+    <ClInclude Include="src\molecule_struct.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A6FB07F4-6155-446C-ACD1-BD8F61F73AA6}</ProjectGuid>

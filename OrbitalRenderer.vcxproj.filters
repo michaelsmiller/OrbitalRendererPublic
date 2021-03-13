@@ -1,24 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="molecule_kernel.cpp" />
-    <ClCompile Include="molecule_reader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="molecule_kernel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="molecule_reader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="molecule_struct.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Header Files">
       <UniqueIdentifier>{9d25a684-b6c6-4e77-b2ff-6e4b37292d21}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\molecule_kernel.cpp" />
+    <ClCompile Include="src\molecule_reader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\molecule_kernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\molecule_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\molecule_struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
