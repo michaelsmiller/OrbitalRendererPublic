@@ -3,3 +3,4 @@ OrbitalRenderer
 *.spv
 
 x64/
+.vs

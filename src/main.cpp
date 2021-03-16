@@ -929,8 +929,8 @@ private:
   }
 
   void createGraphicsPipeline() {
-    auto vertShaderCode = readFile("obj/hardcoded.vert.spv"); 
-    auto fragShaderCode = readFile("obj/hardcoded.frag.spv"); 
+    auto vertShaderCode = readFile("../obj/hardcoded.vert.spv"); 
+    auto fragShaderCode = readFile("../obj/hardcoded.frag.spv"); 
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
