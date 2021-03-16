@@ -14,6 +14,7 @@
     <ClInclude Include="..\src\molecule_kernel.h" />
     <ClInclude Include="..\src\molecule_reader.h" />
     <ClInclude Include="..\src\molecule_struct.h" />
+    <ClInclude Include="..\src\primitive_geometry_mesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />
