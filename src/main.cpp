@@ -929,8 +929,8 @@ private:
   }
 
   void createGraphicsPipeline() {
-    auto vertShaderCode = readFile("obj/hardcoded.vert.spv"); 
-    auto fragShaderCode = readFile("obj/hardcoded.frag.spv"); 
+    auto vertShaderCode = readFile("../obj/hardcoded.vert.spv"); 
+    auto fragShaderCode = readFile("../obj/hardcoded.frag.spv"); 
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -1005,8 +1005,7 @@ private:
     rasterizer.depthBiasClamp = 0.0f; // Optional
     rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
 
-    // Multisampling = supersampling
-    // This tutorial turns it OFF
+    // This tutorial turns multisampling OFF
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.sampleShadingEnable = VK_FALSE;
@@ -1104,7 +1103,7 @@ private:
   void createRenderPass() {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = swapChainImageFormat; // should have same image format as where we get the image
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT; // no supersampling
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT; // no multisampling
     // make framebuffer black before drawing next frame
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     // The contents of the framebuffer go to the screen
@@ -1130,7 +1129,7 @@ private:
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS; // This is a graphics subpass, not compute
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
-    // subpass can also do input attachmnets, resolve attachments (supersampling), depth/stencil data,
+    // subpass can also do input attachmnets, resolve attachments (multisampling), depth/stencil data,
     // and asttachments that are not used by the subpass but must be preserved for later
 
     VkRenderPassCreateInfo renderPassInfo{};
@@ -1463,11 +1462,14 @@ private:
 
     UniformBufferObject ubo{};
     // Rotation of identity about the z axis of 90 degrees
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.));
+
+    // ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
+    ubo.model = glm::mat4(1.0f); // no transformation in object space
+
     // eye, point, and up vector. We never have to change our up :)
     ubo.view = glm::lookAt(glm::vec3(2., 2., 2.), glm::vec3(0., 0., 0.), glm::vec3(0., 0., 1.));
     // perspective projection with 45 degree FOV, the window aspect ratio, and z = 0, 10 as the near and far planes
-    ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.f);
+    ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.f); // 10 is the max depth of view
     ubo.proj[1][1] *= -1; // glm was designed for OpenGL, and in Vulkan -1 is the top and 1 is the bottom
 
     void* data;
