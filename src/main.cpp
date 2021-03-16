@@ -1462,7 +1462,10 @@ private:
 
     UniformBufferObject ubo{};
     // Rotation of identity about the z axis of 90 degrees
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.));
+
+    // ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
+    ubo.model = glm::mat4(1.0f); // no transformation in object space
+
     // eye, point, and up vector. We never have to change our up :)
     ubo.view = glm::lookAt(glm::vec3(2., 2., 2.), glm::vec3(0., 0., 0.), glm::vec3(0., 0., 1.));
     // perspective projection with 45 degree FOV, the window aspect ratio, and z = 0, 10 as the near and far planes
