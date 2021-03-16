@@ -28,7 +28,7 @@
 
 // glm types match GLSL types exactly
 struct Vertex {
-  glm::vec2 pos;
+  glm::vec3 pos;
   glm::vec3 color;
 
   static VkVertexInputBindingDescription getBindingDescription() {
@@ -46,7 +46,7 @@ struct Vertex {
     // position is first
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
-    attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; // This just means vec2 :(
+    attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT; // VK_FORMAT_R32G32_SFLOAT means vec2, and I change it to vec3 :)
     attributeDescriptions[0].offset = offsetof(Vertex, pos); // structs just have this!
     // color is second
     attributeDescriptions[1].binding = 0;

@@ -18,10 +18,14 @@
     <ClInclude Include="..\src\primitive_geometry_mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\molecule_kernel.cpp" />
     <ClCompile Include="..\src\molecule_reader.cpp" />
+    <ClCompile Include="..\src\renderer.cpp" />
   </ItemGroup>
 </Project>

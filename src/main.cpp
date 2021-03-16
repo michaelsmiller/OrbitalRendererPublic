@@ -1,7 +1,6 @@
 
 #include "molecule_struct.h"
 #include "molecule_reader.h"
-#include "molecule_kernel.h"
 
 #include "renderer.h"
 
