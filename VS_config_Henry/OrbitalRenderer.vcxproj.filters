@@ -6,19 +6,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\molecule_kernel.cpp" />
-    <ClCompile Include="src\molecule_reader.cpp" />
+    <ClInclude Include="..\src\molecule_kernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\molecule_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\molecule_struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\molecule_kernel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\molecule_reader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\molecule_struct.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\molecule_kernel.cpp" />
+    <ClCompile Include="..\src\molecule_reader.cpp" />
   </ItemGroup>
 </Project>

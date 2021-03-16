@@ -1,5 +1,6 @@
-#include "molecule_kernel.h"
 #include <math.h>
+
+#include "molecule_kernel.h"
 
 #define ONE_OVER_PI_TO_3_OVER_4 0.4237772081f // 1 / PI ^ (3/4)
 #define ANGSTROM2BOHR 1.889725989f
