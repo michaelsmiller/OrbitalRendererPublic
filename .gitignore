@@ -3,4 +3,8 @@ OrbitalRenderer
 *.spv
 
 x64/
-.vs
+obj/
+.vs/
+VS_config_Henry/x64/
+VS_config_Henry/obj/
+VS_config_Henry/.vs/
