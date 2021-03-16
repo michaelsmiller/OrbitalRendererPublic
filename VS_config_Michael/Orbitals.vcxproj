@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="src\molecule_kernel.h" />
     <ClInclude Include="src\molecule_reader.h" />
     <ClInclude Include="src\molecule_struct.h" />
@@ -27,6 +28,7 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\molecule_kernel.cpp" />
     <ClCompile Include="..\src\molecule_reader.cpp" />
+    <ClCompile Include="..\src\renderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
