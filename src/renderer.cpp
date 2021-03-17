@@ -1284,17 +1284,18 @@ void TriangleRenderer::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevi
 // Model View Projection
 
 void TriangleRenderer::createDescriptorSetLayout() {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0; // which binding/location uniform/descriptor
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1; // number of descriptors in array
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // vertex shader
-    uboLayoutBinding.pImmutableSamplers = nullptr; // image sampling
+    VkDescriptorSetLayoutBinding uboLayoutBinding[2];
+    // vertex shader
+    uboLayoutBinding[0].binding = 0; // which binding/location uniform/descriptor
+    uboLayoutBinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding[0].descriptorCount = 1; // number of descriptors in array
+    uboLayoutBinding[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT; // vertex and fragment shader
+    uboLayoutBinding[0].pImmutableSamplers = nullptr; // image sampling
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &uboLayoutBinding;
+    layoutInfo.pBindings = uboLayoutBinding;
 
     if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
         throw std::runtime_error("Failed to create descriptor set layout!");
@@ -1320,17 +1321,23 @@ void TriangleRenderer::updateUniformBuffer(float time, uint32_t currentImage) {
     //ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
     ubo.model = glm::mat4(1.0f); // no transformation in object space
 
+    ubo.camera_pos = glm::vec3(0., 0., 0.);
+
     // eye, point, and up vector. We never have to change our up :)
-    ubo.view = glm::lookAt(glm::vec3(0., 0., 0.), glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
+    ubo.view = glm::lookAt(ubo.camera_pos, glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
     // perspective projection with 45 degree FOV, the window aspect ratio, and z = 1, 10 as the near and far planes
     ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 1.0f, 10.f); // 10 is the max depth of view
     ubo.proj[1][1] *= -1; // glm was designed for OpenGL, and in Vulkan -1 is the top and 1 is the bottom
+
+    ubo.light_pos = glm::vec3{ 0,0,10 };
+    ubo.light_color = glm::vec3{ 1,1,1 };
 
     void* data;
     vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
     vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
     // push constants are more efficient but I don't think this is a problem
+
 }
 
 void TriangleRenderer::createDescriptorPool() {

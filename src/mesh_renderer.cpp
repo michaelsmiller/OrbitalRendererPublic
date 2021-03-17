@@ -32,7 +32,7 @@ namespace MeshRenderer
                                                PrimitiveGeometryMesh::SphereMesh.vertices[i_vertex * 3 + 1],
                                                PrimitiveGeometryMesh::SphereMesh.vertices[i_vertex * 3 + 2], };
                 glm::vec3 vertex_global_space = center_position + radius * vertex_object_space;
-                out_vertices.push_back(Vertex{ vertex_global_space, color, 0 });
+                out_vertices.push_back(Vertex{ vertex_global_space, color, vertex_object_space, 0 });
             }
 
             for (int i_triangle = 0; i_triangle < PrimitiveGeometryMesh::SphereMesh.triangle_count_times_three / 3; i_triangle++)
@@ -73,7 +73,12 @@ namespace MeshRenderer
                                                    PrimitiveGeometryMesh::CylinderMesh.vertices[i_vertex * 3 + 1],
                                                    PrimitiveGeometryMesh::CylinderMesh.vertices[i_vertex * 3 + 2], };
                     glm::vec3 vertex_global_space = center[i_half_bond] + bond_direction_rotation * bond_scale * vertex_object_space;
-                    out_vertices.push_back(Vertex{ vertex_global_space, color[i_half_bond], 0 });
+
+                    // Assumption: top and bottom faces are never saw, so ignore them.
+                    glm::vec3 normal_object_space{ vertex_object_space.x, 0, vertex_object_space.z };
+                    glm::vec3 normal_global_space = bond_direction_rotation * normal_object_space;
+
+                    out_vertices.push_back(Vertex{ vertex_global_space, color[i_half_bond], normal_global_space, 0 });
                 }
 
                 for (int i_triangle = 0; i_triangle < PrimitiveGeometryMesh::CylinderMesh.triangle_count_times_three / 3; i_triangle++)

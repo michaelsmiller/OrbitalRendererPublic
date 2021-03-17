@@ -25,6 +25,9 @@
     <ClCompile Include="..\src\molecule_reader.cpp" />
     <ClCompile Include="..\src\renderer.cpp" />
   </ItemGroup>
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A6FB07F4-6155-446C-ACD1-BD8F61F73AA6}</ProjectGuid>
     <RootNamespace>OrbitalRenderer</RootNamespace>
@@ -78,7 +81,8 @@
       <Command>rmdir "../obj" /S /Q
 mkdir "../obj"
 $(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.frag -o ../obj/hardcoded.frag.spv
-$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv</Command>
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -106,7 +110,8 @@ $(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.s
       <Command>rmdir "../obj" /S /Q
 mkdir "../obj"
 $(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.frag -o ../obj/hardcoded.frag.spv
-$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv</Command>
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv
+</Command> 
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
