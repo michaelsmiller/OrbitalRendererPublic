@@ -328,7 +328,11 @@ private:
 
   void createVertexBuffer();
 
+  void updateVertexBuffer();
+
   void createIndexBuffer();
+
+  void updateIndexBuffer();
 
   // need to use command buffers to transfer the vertices from staging buffer to vertex buffer
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);

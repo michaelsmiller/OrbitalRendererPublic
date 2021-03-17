@@ -16,6 +16,12 @@ namespace MeshRenderer
         int triangle_offset = 0;
         for (int i_atom = 0; i_atom < frame->n_atom; i_atom++)
         {
+            if (triangle_offset + PrimitiveGeometryMesh::SphereMesh.vertex_count_times_three / 3 > UINT16_MAX)
+            {
+                std::cout << "Too many vertices in your mesh!" << std::endl;
+                return false;
+            }
+
             glm::vec3 center_position{ frame->atoms[i_atom].xyz[0],frame->atoms[i_atom].xyz[1],frame->atoms[i_atom].xyz[2], };
             glm::vec3 color{ frame->atoms[i_atom].rgb[0],frame->atoms[i_atom].rgb[1],frame->atoms[i_atom].rgb[2], };
             float radius = frame->atoms[i_atom].vdw_radius;
@@ -52,6 +58,12 @@ namespace MeshRenderer
 
             for (int i_half_bond = 0; i_half_bond < 2; i_half_bond++)
             {
+                if (triangle_offset + PrimitiveGeometryMesh::CylinderMesh.vertex_count_times_three / 3 > UINT16_MAX)
+                {
+                    std::cout << "Too many vertices in your mesh!" << std::endl;
+                    return false;
+                }
+
                 glm::vec3 bond_direction = glm::normalize(center[1 - i_half_bond] - center[i_half_bond]);
                 glm::mat3 bond_direction_rotation{ glm::cross(glm::vec3(0,0,1), bond_direction), bond_direction, glm::cross(glm::cross(glm::vec3(0,0,1), bond_direction), bond_direction) };
 
