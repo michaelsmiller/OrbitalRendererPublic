@@ -22,7 +22,7 @@ namespace MoleculeReader
                                                 { 0.901960784,0.901960784,0.901960784 }, { 0.749019608,0.760784314,0.780392157 }, { 0.650980392,0.650980392,0.670588235 }, { 0.541176471,0.600000000,0.780392157 }, { 0.611764706,0.478431373,0.780392157 },
                                                 { 0.878431373,0.400000000,0.200000000 }, { 0.941176471,0.564705882,0.627450980 }, { 0.313725490,0.815686275,0.313725490 }, { 0.784313725,0.501960784,0.200000000 }, { 0.490196078,0.501960784,0.690196078 },
                                                 { 0.760784314,0.560784314,0.560784314 }, { 0.400000000,0.560784314,0.560784314 }, { 0.741176471,0.501960784,0.890196078 }, { 1.000000000,0.631372549,0.000000000 }, { 0.650980392,0.160784314,0.160784314 }, { 0.360784314,0.721568627,0.819607843 } };
-    const float element_vdw_radius[n_element] = { 0, 1.2, 1.4, 1.82, -1, -1,
+    const float element_vdw_diameter[n_element] = { 0, 1.2, 1.4, 1.82, -1, -1,
                                                   1.7, 1.55, 1.52, 1.47, 1.54,
                                                   2.27, 1.73, -1, 2.1, 1.8,
                                                   1.8, 1.75, 1.88, 2.75, -1,
@@ -160,7 +160,8 @@ namespace MoleculeReader
                 frame->atoms[i_atom].xyz[0] = std::stof(splitted[1]);
                 frame->atoms[i_atom].xyz[1] = std::stof(splitted[2]);
                 frame->atoms[i_atom].xyz[2] = std::stof(splitted[3]);
-                frame->atoms[i_atom].vdw_radius = element_vdw_radius[atomic_number] > 0 ? element_vdw_radius[atomic_number] : element_default_vdw_radius;
+                // divided by 4 for better looking
+                frame->atoms[i_atom].vdw_radius = element_vdw_diameter[atomic_number] > 0 ? element_vdw_diameter[atomic_number] / 4 : element_default_vdw_radius;
                 frame->atoms[i_atom].bond_radius = element_bond_radius[atomic_number] > 0 ? element_bond_radius[atomic_number] : element_default_bond_radius;
                 frame->atoms[i_atom].rgb[0] = element_color[atomic_number][0];
                 frame->atoms[i_atom].rgb[1] = element_color[atomic_number][1];

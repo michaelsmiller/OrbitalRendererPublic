@@ -18,6 +18,11 @@ namespace MoleculeKernel
         return delta_r_sqr < SQUARE(bond_radius_cutoff_scale * bond_radius_cutoff);
     }
 
+    std::vector<MoleculeStruct::ChemicalBond> getBonds(const MoleculeStruct::MolecularDataOneFrame* const frame)
+    {
+        return getBonds(frame->n_atom, frame->atoms);
+    }
+
     std::vector<MoleculeStruct::ChemicalBond> getBonds(const int n_atom, const MoleculeStruct::ChemistryAtom* const atoms)
     {
         std::vector<MoleculeStruct::ChemicalBond> bonds;

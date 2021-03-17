@@ -25,6 +25,8 @@
 #include <algorithm> // for std::min/max
 #include <fstream>
 
+#include "molecule_struct.h"
+
 
 // glm types match GLSL types exactly
 struct Vertex {
@@ -76,7 +78,25 @@ class TriangleRenderer {
 public:
     void run();
 
+    TriangleRenderer(const std::vector<MoleculeStruct::MolecularDataOneFrame*>& set_trajectory) : trajectory(set_trajectory) {}
+
 private:
+    // AOS raw data hardcoded
+    std::vector<Vertex> vertices = {
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    };
+
+    // Each triple is a triangle
+    // TODO: change to uint32_t for more than 65535 vertices
+    std::vector<uint16_t> indices = {
+        0,1,2,2,3,0
+    };
+
+    std::vector<MoleculeStruct::MolecularDataOneFrame*> trajectory;
+
   GLFWwindow * window; // the window rendering everything
   VkInstance instance; // holds all the Vulkan information
   VkDebugUtilsMessengerEXT debugMessenger; // Need an object for this because it is specific to our application and layers.

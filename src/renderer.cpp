@@ -15,6 +15,7 @@
 
 
 #include "renderer.h"
+#include "mesh_renderer.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -56,27 +57,14 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 }
 
 
-// AOS raw data hardcoded
-const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-};
-
-// Each triple is a triangle
-// TODO: change to uint32_t for more than 65535 vertices
-const std::vector<uint16_t> indices = {
-  0,1,2,2,3,0
-};
-
-
   void TriangleRenderer::run() {
 #ifdef NDEBUG
     printf("RELEASE MODE\n");
 #else
     printf("DEBUG MODE\n");
 #endif
+    if (trajectory.size() > 0)
+        MeshRenderer::renderMolecule(trajectory[0], vertices, indices); // TODO: This piece of code should not be here, but Henry hasn't figure out where to put yet.
     initWindow();
     initVulkan();
     mainLoop();
@@ -1298,9 +1286,9 @@ const std::vector<uint16_t> indices = {
     ubo.model = glm::mat4(1.0f); // no transformation in object space
 
     // eye, point, and up vector. We never have to change our up :)
-    ubo.view = glm::lookAt(glm::vec3(2., 2., 2.), glm::vec3(0., 0., 0.), glm::vec3(0., 0., 1.));
-    // perspective projection with 45 degree FOV, the window aspect ratio, and z = 0, 10 as the near and far planes
-    ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.f); // 10 is the max depth of view
+    ubo.view = glm::lookAt(glm::vec3(0., 0., 0.), glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
+    // perspective projection with 45 degree FOV, the window aspect ratio, and z = 1, 10 as the near and far planes
+    ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 1.0f, 10.f); // 10 is the max depth of view
     ubo.proj[1][1] *= -1; // glm was designed for OpenGL, and in Vulkan -1 is the top and 1 is the bottom
 
     void* data;

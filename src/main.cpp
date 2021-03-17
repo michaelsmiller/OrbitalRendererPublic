@@ -5,15 +5,15 @@
 #include "renderer.h"
 
 int main() {
-    TriangleRenderer app;
-
     try {
         std::vector<MoleculeStruct::MolecularDataOneFrame*> trajectory
-            = MoleculeReader::readWholeTrajectory("./molecule_demo/demo");
+            = MoleculeReader::readWholeTrajectory("../molecule_demo/demo");
 
-        MoleculeReader::clearTrajectory(trajectory);
+        TriangleRenderer app(trajectory);
 
         app.run();
+
+        MoleculeReader::clearTrajectory(trajectory);
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
