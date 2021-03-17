@@ -91,8 +91,7 @@ private:
     };
 
     // Each triple is a triangle
-    // TODO: change to uint32_t for more than 65535 vertices
-    std::vector<uint16_t> indices = {
+    std::vector<uint32_t> indices = {
         0,1,2,2,3,0
     };
 
@@ -314,6 +313,8 @@ private:
 
     void createCommandBuffers();
 
+    void renderCommandBuffers();
+
     // Drawing
 
     void createSyncObjects();
@@ -329,11 +330,9 @@ private:
 
     void createVertexBuffer();
 
-    void updateVertexBuffer();
-
     void createIndexBuffer();
 
-    void updateIndexBuffer();
+    void updateVertexAndIndexBuffer(float time);
 
     // need to use command buffers to transfer the vertices from staging buffer to vertex buffer
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
@@ -345,7 +344,7 @@ private:
     // There is one uniform buffer for every swap chain image
     void createUniformBuffers();
 
-    void updateUniformBuffer(uint32_t currentImage);
+    void updateUniformBuffer(float time, uint32_t currentImage);
 
     void createDescriptorPool();
 

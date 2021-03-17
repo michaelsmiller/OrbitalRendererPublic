@@ -185,6 +185,7 @@ void TriangleRenderer::initVulkan() {
     createDescriptorPool(); // Descriptor sets must be allocated from descriptor pools
     createDescriptorSets();
     createCommandBuffers();
+    renderCommandBuffers();
     createSyncObjects();
 }
 
@@ -571,6 +572,13 @@ void TriangleRenderer::createImageViews() {
 // 2. Executes command buffer with that image as in attachment in the framebuffer
 // 3. Return the image to the swap chain for presentation to the window
 void TriangleRenderer::drawFrame() {
+    // somehow this is supposed to get the time at the beginning of the render???
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    // gets the time since render started
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
     // waits for the fence to be signalled by a completing task if necessary
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -593,9 +601,8 @@ void TriangleRenderer::drawFrame() {
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
-    updateVertexBuffer();
-    updateIndexBuffer();
-    updateUniformBuffer(imageIndex); // TODO: maybe put this right after the vkAcquireNextImageKHR?
+    updateVertexAndIndexBuffer(time);
+    updateUniformBuffer(time, imageIndex); // TODO: maybe put this right after the vkAcquireNextImageKHR?
 
     // 2.
     VkSubmitInfo submitInfo{};
@@ -1011,7 +1018,7 @@ void TriangleRenderer::createCommandPool() {
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-    poolInfo.flags = 0; // Optional
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Allows us to call vkBeginCommandBuffer repeatedly
     if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
         throw std::runtime_error("Failed to create command pool!");
 }
@@ -1026,11 +1033,14 @@ void TriangleRenderer::createCommandBuffers() {
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // submitted to queue but can't be referenced by others
     // can make secondary command buffers to reuse data
-    allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
+    allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
     if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
         throw std::runtime_error("Failed to allocate command buffers!");
+}
 
+void TriangleRenderer::renderCommandBuffers()
+{
     for (size_t i = 0; i < commandBuffers.size(); i++) { 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1063,7 +1073,7 @@ void TriangleRenderer::createCommandBuffers() {
         VkBuffer vertexBuffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16); // TODO 32 bit
+        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
         // Draws the triangle: nvertices, num_instances, vertex offset, instance offset
         /* vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0); */
@@ -1152,9 +1162,6 @@ void TriangleRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 void TriangleRenderer::createVertexBuffer()
 {
-    if (trajectory.size() > 0)
-        MeshRenderer::renderMolecule(trajectory[0], vertices, indices); // TODO: This piece of code should not be here, but Henry hasn't figure out where to put yet.
-
     VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
     // Will want to copy from CPU to GPU staging buffer and then later copy from
@@ -1179,11 +1186,6 @@ void TriangleRenderer::createVertexBuffer()
     copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
-}
-
-void TriangleRenderer::updateVertexBuffer()
-{
-    // Not sure what to do
 }
 
 void TriangleRenderer::createIndexBuffer()
@@ -1214,9 +1216,31 @@ void TriangleRenderer::createIndexBuffer()
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
-void TriangleRenderer::updateIndexBuffer()
+void TriangleRenderer::updateVertexAndIndexBuffer(float time)
 {
-    // Not sure what to do
+    int total_frame_count = trajectory.size();
+    if (total_frame_count == 0)
+        return;
+
+    const float frame_interval = 0.1;
+    static int last_frame_rendered = -1; // This is a global variable
+    int i_frame = (int)(time / frame_interval) % total_frame_count;
+    if (i_frame == last_frame_rendered)
+        return;
+    else
+        last_frame_rendered = i_frame;
+
+    MeshRenderer::renderMolecule(trajectory[i_frame], vertices, indices);
+
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
+
+    createVertexBuffer();
+    createIndexBuffer();
+
+    renderCommandBuffers();
 }
 
 // need to use command buffers to transfer the vertices from staging buffer to vertex buffer
@@ -1288,22 +1312,16 @@ void TriangleRenderer::createUniformBuffers() {
     }
 }
 
-void TriangleRenderer::updateUniformBuffer(uint32_t currentImage) {
-    // somehow this is supposed to get the time at the beginning of the render???
-    static auto startTime = std::chrono::high_resolution_clock::now();
-
-    // gets the time since render started
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+void TriangleRenderer::updateUniformBuffer(float time, uint32_t currentImage) {
 
     UniformBufferObject ubo{};
     // Rotation of identity about the z axis of 90 degrees
 
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
-    // ubo.model = glm::mat4(1.0f); // no transformation in object space
+    //ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
+    ubo.model = glm::mat4(1.0f); // no transformation in object space
 
     // eye, point, and up vector. We never have to change our up :)
-    ubo.view = glm::lookAt(glm::vec3(0., 0., 6.), glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
+    ubo.view = glm::lookAt(glm::vec3(0., 0., 0.), glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
     // perspective projection with 45 degree FOV, the window aspect ratio, and z = 1, 10 as the near and far planes
     ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 1.0f, 10.f); // 10 is the max depth of view
     ubo.proj[1][1] *= -1; // glm was designed for OpenGL, and in Vulkan -1 is the top and 1 is the bottom

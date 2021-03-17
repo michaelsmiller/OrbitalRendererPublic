@@ -8,7 +8,7 @@ namespace MeshRenderer
 
     bool renderMolecule(MoleculeStruct::MolecularDataOneFrame* frame,
         std::vector<Vertex>& out_vertices,
-        std::vector<uint16_t>& out_indices)
+        std::vector<uint32_t>& out_indices)
     {
         out_vertices.clear();
         out_indices.clear();
@@ -16,7 +16,7 @@ namespace MeshRenderer
         int triangle_offset = 0;
         for (int i_atom = 0; i_atom < frame->n_atom; i_atom++)
         {
-            if (triangle_offset + PrimitiveGeometryMesh::SphereMesh.vertex_count_times_three / 3 > UINT16_MAX)
+            if (triangle_offset + PrimitiveGeometryMesh::SphereMesh.vertex_count_times_three / 3 > UINT32_MAX)
             {
                 std::cout << "Too many vertices in your mesh!" << std::endl;
                 return false;
@@ -58,7 +58,7 @@ namespace MeshRenderer
 
             for (int i_half_bond = 0; i_half_bond < 2; i_half_bond++)
             {
-                if (triangle_offset + PrimitiveGeometryMesh::CylinderMesh.vertex_count_times_three / 3 > UINT16_MAX)
+                if (triangle_offset + PrimitiveGeometryMesh::CylinderMesh.vertex_count_times_three / 3 > UINT32_MAX)
                 {
                     std::cout << "Too many vertices in your mesh!" << std::endl;
                     return false;

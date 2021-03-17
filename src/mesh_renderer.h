@@ -9,5 +9,5 @@ namespace MeshRenderer
 {
     bool renderMolecule(MoleculeStruct::MolecularDataOneFrame* frame,
                         std::vector<Vertex>& out_vertices,
-                        std::vector<uint16_t>& out_indices);
+                        std::vector<uint32_t>& out_indices);
 }
