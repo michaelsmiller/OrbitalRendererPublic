@@ -30,6 +30,7 @@
 struct Vertex {
   glm::vec3 pos;
   glm::vec3 color;
+  uint32_t render_type; // 0 for molecule, 1 for orbital
 
   static VkVertexInputBindingDescription getBindingDescription() {
     // The rate of memory loading throughout vertices and memory layout and access behavior
@@ -41,8 +42,8 @@ struct Vertex {
   }
 
   // There are 2, that describe how to extract position and color respectively
-  static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+  static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+    std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
     // position is first
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
@@ -53,6 +54,11 @@ struct Vertex {
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT; // This just means vec3 :(
     attributeDescriptions[1].offset = offsetof(Vertex, color); // structs just have this!
+    // render_type is third
+    attributeDescriptions[2].binding = 0;
+    attributeDescriptions[2].location = 2;
+    attributeDescriptions[2].format = VK_FORMAT_R32_UINT; // This just means uint32_t :(
+    attributeDescriptions[2].offset = offsetof(Vertex, render_type); // structs just have this!
     return attributeDescriptions;
   }
 };
