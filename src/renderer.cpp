@@ -584,7 +584,10 @@ void TriangleRenderer::drawFrame() {
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
+    // std::cout << "vertices: " << vertices.size() << ", " << indices.size() << "\n";
+#ifndef DEBUG_TRIANGLES
     updateVertexAndIndexBuffer(time);
+#endif
     updateUniformBuffer(time, imageIndex); // TODO: maybe put this right after the vkAcquireNextImageKHR?
 
     // 2.
@@ -950,7 +953,7 @@ void TriangleRenderer::createRenderPass() {
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    // Every render pass can have 1 or more subpasse, each has its own description
+    // Every render pass can have 1 or more subpasses, each has its own description
 
     VkAttachmentReference colorAttachmentRef{}; // refers to the above color attachment
     colorAttachmentRef.attachment = 0; // index in attachment descriptions array
@@ -1177,7 +1180,9 @@ void TriangleRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 void TriangleRenderer::createVertexBuffer()
 {
+#ifndef DEBUG_TRIANGLES
     MeshRenderer::renderMolecule(trajectory[0], vertices, indices);
+#endif
     VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
     // Will want to copy from CPU to GPU staging buffer and then later copy from

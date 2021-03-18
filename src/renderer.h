@@ -1,5 +1,7 @@
 #pragma once
 
+// #define DEBUG_TRIANGLES
+
 // GLFW is necessary for online rendering
 // GLFW includes the vulkan files for us so we don't think about it
 #define GLFW_INCLUDE_VULKAN
@@ -89,21 +91,29 @@ class TriangleRenderer
 public:
     void run();
 
-    TriangleRenderer(const std::vector<MoleculeStruct::MolecularDataOneFrame*>& set_trajectory) : trajectory(set_trajectory) {}
+    TriangleRenderer(const std::vector<MoleculeStruct::MolecularDataOneFrame*>& set_trajectory) : trajectory(set_trajectory) {
+        vertices = {
+			{{-5.5f, -5.5f, 7.5f}, {1.0f, 1.0f, 1.0f}, {0, 1.f, 0}, 0},
+			{{-4, -5.5f, 6.5f}, {0.5f, 0.5f, 0.5f}, {0, 1.f, 0}, 0},
+			{{-4.f, -3.f, 6.5f}, {0.2f, 0.2f, 0.2f}, {0, 1.f, 0}, 0},
+
+			{{-4.5f, -4.5f, 7.0f}, {1.0f, 0.0f, 0.0f}, {0, 1.f, 0}, 0},
+			{{-3, -4.5f, 6.0f}, {0.0f, 1.0f, 0.0f}, {0, 1.f, 0}, 0},
+			{{-3.f, -1.f, 6.0f}, {0.0f, 0.0f, 1.0f}, {0, 1.f, 0}, 0}
+		};
+
+        indices = {
+            0, 1, 2,
+            3, 4, 5
+        };
+
+    }
 
 private:
     // AOS raw data hardcoded
-    std::vector<Vertex> vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-    };
-
+    std::vector<Vertex> vertices;
     // Each triple is a triangle
-    std::vector<uint32_t> indices = {
-        0,1,2,2,3,0
-    };
+    std::vector<uint32_t> indices;
 
     std::vector<MoleculeStruct::MolecularDataOneFrame*> trajectory;
 
