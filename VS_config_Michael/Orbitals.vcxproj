@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\mesh_renderer.h" />
+    <ClInclude Include="..\src\primitive_geometry_mesh.h" />
     <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="src\molecule_kernel.h" />
     <ClInclude Include="src\molecule_reader.h" />
@@ -26,9 +28,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\mesh_renderer.cpp" />
     <ClCompile Include="..\src\molecule_kernel.cpp" />
     <ClCompile Include="..\src\molecule_reader.cpp" />
     <ClCompile Include="..\src\renderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\hardcoded.frag" />
+    <None Include="..\shaders\hardcoded.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
