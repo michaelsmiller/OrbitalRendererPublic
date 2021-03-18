@@ -584,7 +584,7 @@ void TriangleRenderer::drawFrame() {
         vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
-    std::cout << "vertices: " << vertices.size() << ", " << indices.size() << "\n";
+    // std::cout << "vertices: " << vertices.size() << ", " << indices.size() << "\n";
     // updateVertexAndIndexBuffer(time);
     updateUniformBuffer(time, imageIndex); // TODO: maybe put this right after the vkAcquireNextImageKHR?
 
