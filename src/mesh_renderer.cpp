@@ -491,7 +491,7 @@ namespace MeshRenderer
     const float bounding_box_additional_extension = 3.0f;
     const float top_level_minimal_resolution = 0.5f;
     const int octree_level = 3;
-    const float isosurface_threshold = 0.1f;
+    const float isosurface_threshold = 0.15f;
     const glm::vec3 orbital_color[2]{ glm::vec3(1,0,0), glm::vec3(0,0,1) };
 
     bool renderOrbital(MoleculeStruct::MolecularDataOneFrame* frame,
@@ -580,12 +580,12 @@ namespace MeshRenderer
                             std::vector<int> triangles_temp;
                             int vertices_count_before = out_vertices.size();
                             int n_new_triangles = MarchingCubes::Polygonise(voxel,
-                                                                            isosurface_threshold,
+                                                                            isosurface_threshold * i_sign,
                                                                             triangles_temp,
                                                                             out_vertices,
                                                                             i_sign > 0 ? orbital_color[0] : orbital_color[1]);
 
-                            if (n_new_triangles + vertices_count_before > UINT32_MAX)
+                            if (n_new_triangles * 3 * 2 + vertices_count_before > UINT32_MAX)
                             {
                                 std::cout << "Too many vertices in your mesh!" << std::endl;
                                 delete[] evaluation_pool;
@@ -593,7 +593,15 @@ namespace MeshRenderer
                             }
 
                             for (int i = 0; i < n_new_triangles; i++)
-                                out_indices.push_back(triangles_temp[i] + vertices_count_before);
+                            {
+                                out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
+                                out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
+                                out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
+                                // Double sided
+                                out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
+                                out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
+                                out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
+                            }
                         }
                 }
 
