@@ -29,6 +29,10 @@ vec3 Phong_BRDF(vec3 L, vec3 V, vec3 N, vec3 diffuse_color, vec3 specular_color,
     return phong_color;
 }
 
+vec3 Diffuse_BRDF(vec3 L, vec3 N, vec3 diffuseColor) {
+    return diffuseColor * max(dot(N, L), 0.);
+}
+
 void main()
 {
     switch (fragRenderType)
@@ -36,10 +40,11 @@ void main()
     case 0: // molecule
         vec3 N = normalize(fragNormal);
         vec3 L = normalize(ubo.light_pos - fragPos);
-        vec3 V = normalize(ubo.camera_pos - fragPos);
+        // vec3 V = normalize(ubo.camera_pos - fragPos);
 
         vec3 color = 0.2 * fragColor; // ambient
-        color += ubo.light_color * Phong_BRDF(L, V, N, fragColor, vec3(1,1,1), 3);
+        color += ubo.light_color * Diffuse_BRDF(L, N, fragColor);
+        // Phong_BRDF(L, V, N, fragColor, vec3(1,1,1), 3);
         // No decay of light over distance is accounted.
 
         outColor = vec4(color, 1);

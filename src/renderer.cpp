@@ -813,7 +813,7 @@ void TriangleRenderer::createGraphicsPipeline() {
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL; // we pass area of polygon into shader
     rasterizer.lineWidth = 1.; // number of fragments
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; // Culling back is the default in a lot of graphics
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // counter-clockwise because flipping Y axis at some point
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE; // this is incorrect with depth test, so change it to clockwise -> counter-clockwise because flipping Y axis at some point
     rasterizer.depthBiasEnable = VK_FALSE; // Can bias depth based on angle for a shadow map
     //rasterizer.depthBiasConstantFactor = 0.0f; // Optional
     //rasterizer.depthBiasClamp = 0.0f; // Optional
@@ -1180,9 +1180,6 @@ void TriangleRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 void TriangleRenderer::createVertexBuffer()
 {
-#ifndef DEBUG_TRIANGLES
-    MeshRenderer::renderMolecule(trajectory[0], vertices, indices);
-#endif
     VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
     // Will want to copy from CPU to GPU staging buffer and then later copy from
@@ -1239,7 +1236,9 @@ void TriangleRenderer::createIndexBuffer()
 
 void TriangleRenderer::updateVertexAndIndexBuffer(float time)
 {
+#ifdef DEBUG_TRIANGLES
     return;
+#endif
     int total_frame_count = trajectory.size();
     if (total_frame_count == 0)
         return;
@@ -1343,7 +1342,7 @@ void TriangleRenderer::updateUniformBuffer(float time, uint32_t currentImage) {
     //ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
     ubo.model = glm::mat4(1.0f); // no transformation in object space
 
-    ubo.camera_pos = glm::vec3(0., 0., 6.);
+    ubo.camera_pos = glm::vec3(0., 0., 0.);
 
     // eye, point, and up vector. We never have to change our up :)
     ubo.view = glm::lookAt(ubo.camera_pos, glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
@@ -1351,7 +1350,7 @@ void TriangleRenderer::updateUniformBuffer(float time, uint32_t currentImage) {
     ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 1.0f, 10.f); // 10 is the max depth of view
     ubo.proj[1][1] *= -1; // glm was designed for OpenGL, and in Vulkan -1 is the top and 1 is the bottom
 
-    ubo.light_pos = ubo.camera_pos + glm::vec3(0,1,-5);
+    ubo.light_pos = ubo.camera_pos + glm::vec3(0,-5,0);
     ubo.light_color = glm::vec3{ 1,1,1 };
 
     void* data;
