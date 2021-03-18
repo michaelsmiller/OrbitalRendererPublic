@@ -1,5 +1,7 @@
 #pragma once
 
+// #define DEBUG_TRIANGLES
+
 // GLFW is necessary for online rendering
 // GLFW includes the vulkan files for us so we don't think about it
 #define GLFW_INCLUDE_VULKAN

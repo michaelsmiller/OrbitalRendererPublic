@@ -585,7 +585,9 @@ void TriangleRenderer::drawFrame() {
     imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
     // std::cout << "vertices: " << vertices.size() << ", " << indices.size() << "\n";
-    // updateVertexAndIndexBuffer(time);
+#ifndef DEBUG_TRIANGLES
+    updateVertexAndIndexBuffer(time);
+#endif
     updateUniformBuffer(time, imageIndex); // TODO: maybe put this right after the vkAcquireNextImageKHR?
 
     // 2.
@@ -1177,7 +1179,9 @@ void TriangleRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 void TriangleRenderer::createVertexBuffer()
 {
-    // MeshRenderer::renderMolecule(trajectory[0], vertices, indices);
+#ifndef DEBUG_TRIANGLES
+    MeshRenderer::renderMolecule(trajectory[0], vertices, indices);
+#endif
     VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
     // Will want to copy from CPU to GPU staging buffer and then later copy from
