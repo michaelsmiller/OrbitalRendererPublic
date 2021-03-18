@@ -1358,7 +1358,7 @@ void TriangleRenderer::updateUniformBuffer(float time, uint32_t currentImage) {
     //ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.,0.,1.)); // rotation
     ubo.model = glm::mat4(1.0f); // no transformation in object space
 
-    ubo.camera_pos = glm::vec3(0., 0., 0.);
+    ubo.camera_pos = glm::vec3(0., 0., 6.);
 
     // eye, point, and up vector. We never have to change our up :)
     ubo.view = glm::lookAt(ubo.camera_pos, glm::vec3(-3., -3., 7.), glm::vec3(0., 0., 1.));
@@ -1366,7 +1366,7 @@ void TriangleRenderer::updateUniformBuffer(float time, uint32_t currentImage) {
     ubo.proj = glm::perspective(glm::radians(45.f), swapChainExtent.width / (float) swapChainExtent.height, 1.0f, 10.f); // 10 is the max depth of view
     ubo.proj[1][1] *= -1; // glm was designed for OpenGL, and in Vulkan -1 is the top and 1 is the bottom
 
-    ubo.light_pos = glm::vec3{ 0,0,10 };
+    ubo.light_pos = ubo.camera_pos + glm::vec3(0,1,-5);
     ubo.light_color = glm::vec3{ 1,1,1 };
 
     void* data;

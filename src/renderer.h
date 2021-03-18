@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 // Offsets of data in data structures passed to the shaders are multiples of 16 bytes
 // NOTE: With nested data structures, this will not work properly, and still need std::alignas
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
