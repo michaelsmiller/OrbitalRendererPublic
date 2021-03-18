@@ -10,4 +10,8 @@ namespace MeshRenderer
     bool renderMolecule(MoleculeStruct::MolecularDataOneFrame* frame,
                         std::vector<Vertex>& out_vertices,
                         std::vector<uint32_t>& out_indices);
+
+    bool renderOrbital(MoleculeStruct::MolecularDataOneFrame* frame,
+                       std::vector<Vertex>& out_vertices,
+                       std::vector<uint32_t>& out_indices);
 }
