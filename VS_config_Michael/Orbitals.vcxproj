@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\mesh_renderer.h" />
+    <ClInclude Include="..\src\primitive_geometry_mesh.h" />
     <ClInclude Include="..\src\renderer.h" />
     <ClInclude Include="src\molecule_kernel.h" />
     <ClInclude Include="src\molecule_reader.h" />
@@ -26,9 +28,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\mesh_renderer.cpp" />
     <ClCompile Include="..\src\molecule_kernel.cpp" />
     <ClCompile Include="..\src\molecule_reader.cpp" />
     <ClCompile Include="..\src\renderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\hardcoded.frag" />
+    <None Include="..\shaders\hardcoded.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -109,6 +116,12 @@
       <AdditionalLibraryDirectories>..\windows_additional_library\glfw-3.3.3.bin.WIN64\lib-vc2019;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir "../obj" /S /Q
+mkdir "../obj"
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.frag -o ../obj/hardcoded.frag.spv
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -129,6 +142,12 @@
       <AdditionalLibraryDirectories>..\windows_additional_library\glfw-3.3.3.bin.WIN64\lib-vc2019;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir "../obj" /S /Q
+mkdir "../obj"
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.frag -o ../obj/hardcoded.frag.spv
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -145,6 +164,12 @@
       <AdditionalLibraryDirectories>..\windows_additional_library\glfw-3.3.3.bin.WIN64\lib-vc2019;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir "../obj" /S /Q
+mkdir "../obj"
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.frag -o ../obj/hardcoded.frag.spv
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -165,6 +190,12 @@
       <AdditionalLibraryDirectories>..\windows_additional_library\glfw-3.3.3.bin.WIN64\lib-vc2019;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>rmdir "../obj" /S /Q
+mkdir "../obj"
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.frag -o ../obj/hardcoded.frag.spv
+$(VULKAN_SDK)/Bin/glslc.exe ../shaders/hardcoded.vert -o ../obj/hardcoded.vert.spv</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
