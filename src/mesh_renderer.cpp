@@ -65,7 +65,7 @@ namespace MeshRenderer
                 }
 
                 glm::vec3 bond_direction = glm::normalize(center[1 - i_half_bond] - center[i_half_bond]);
-                glm::mat3 bond_direction_rotation{ glm::cross(glm::vec3(0,0,1), bond_direction), bond_direction, glm::cross(glm::cross(glm::vec3(0,0,1), bond_direction), bond_direction) };
+                glm::mat3 bond_direction_rotation{ glm::normalize(glm::cross(glm::vec3(0,0,1), bond_direction)), bond_direction, glm::normalize(glm::cross(glm::cross(glm::vec3(0,0,1), bond_direction), bond_direction)) };
 
                 for (int i_vertex = 0; i_vertex < PrimitiveGeometryMesh::CylinderMesh.vertex_count_times_three / 3; i_vertex++)
                 {
