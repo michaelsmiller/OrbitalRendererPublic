@@ -300,7 +300,7 @@ namespace MarchingCubes
     glm::vec3 VertexInterp(const glm::vec3& p1, const glm::vec3& p2, float valp1, float valp2, float isolevel)
     {
         float t = (isolevel - valp1) / (valp2 - valp1);
-        return p1 * t + p2 * (1.0f - t);
+        return p2 * t + p1 * (1.0f - t);
     }
 
     struct GridCell
@@ -499,35 +499,35 @@ namespace MeshRenderer
                                 const glm::vec3 voxel_origin,
                                 const glm::vec3 voxel_unit_cell,
                                 const int voxel_grid_dimension[3],
+                                const float isovalue,
                                 const int layer,
                                 std::vector<Vertex>& out_vertices,
                                 std::vector<uint32_t>& out_indices)
     {
+        float* evaluation_pool = new float[(voxel_grid_dimension[0] + 1) * (voxel_grid_dimension[1] + 1) * (voxel_grid_dimension[2] + 1)];
 
-        float* evaluation_pool = new float[voxel_grid_dimension[0] * voxel_grid_dimension[1] * voxel_grid_dimension[2]];
-
-        for (int i_x = 0; i_x < voxel_grid_dimension[0]; i_x++)
-            for (int i_y = 0; i_y < voxel_grid_dimension[1]; i_y++)
-                for (int i_z = 0; i_z < voxel_grid_dimension[2]; i_z++)
+        for (int i_x = 0; i_x < voxel_grid_dimension[0] + 1; i_x++)
+            for (int i_y = 0; i_y < voxel_grid_dimension[1] + 1; i_y++)
+                for (int i_z = 0; i_z < voxel_grid_dimension[2] + 1; i_z++)
                 {
-                    int i_pool = i_x * voxel_grid_dimension[1] * voxel_grid_dimension[2] + i_y * voxel_grid_dimension[2] + i_z;
+                    int i_pool = i_x * (voxel_grid_dimension[1] + 1) * (voxel_grid_dimension[2] + 1) + i_y * (voxel_grid_dimension[2] + 1) + i_z;
                     float evulation_position[3]{ voxel_origin.x + i_x * voxel_unit_cell.x,
                                                  voxel_origin.y + i_y * voxel_unit_cell.y,
                                                  voxel_origin.z + i_z * voxel_unit_cell.z, };
                     evaluation_pool[i_pool] = MoleculeKernel::evaluateOrbital(evulation_position, frame);
                 }
 
-        for (int i_x = 0; i_x < voxel_grid_dimension[0] - 1; i_x++)
-            for (int i_y = 0; i_y < voxel_grid_dimension[1] - 1; i_y++)
-                for (int i_z = 0; i_z < voxel_grid_dimension[2] - 1; i_z++)
+        for (int i_x = 0; i_x < voxel_grid_dimension[0]; i_x++)
+            for (int i_y = 0; i_y < voxel_grid_dimension[1]; i_y++)
+                for (int i_z = 0; i_z < voxel_grid_dimension[2]; i_z++)
                 {
                     float evaluation_voxel[8];
                     for (int i_x_voxel = 0; i_x_voxel < 2; i_x_voxel++)
                         for (int i_y_voxel = 0; i_y_voxel < 2; i_y_voxel++)
                             for (int i_z_voxel = 0; i_z_voxel < 2; i_z_voxel++)
                             {
-                                int i_pool = (i_x + i_x_voxel) * voxel_grid_dimension[1] * voxel_grid_dimension[2]
-                                    + (i_y + i_y_voxel) * voxel_grid_dimension[2]
+                                int i_pool = (i_x + i_x_voxel) * (voxel_grid_dimension[1] + 1) * (voxel_grid_dimension[2] + 1)
+                                    + (i_y + i_y_voxel) * (voxel_grid_dimension[2] + 1)
                                     + i_z + i_z_voxel;
                                 int i_voxel = i_x_voxel * 4 + i_y_voxel * 2 + i_z_voxel;
 
@@ -542,7 +542,7 @@ namespace MeshRenderer
                     }
 
                     for (int i_sign = 1; i_sign >= -1; i_sign -= 2)
-                        if (evaluation_min < isosurface_threshold * i_sign && isosurface_threshold * i_sign < evaluation_max)
+                        if (evaluation_min < isovalue * i_sign && isovalue * i_sign < evaluation_max)
                         {
                             glm::vec3 evulation_position = voxel_origin + glm::vec3(i_x, i_y, i_z) * voxel_unit_cell;
 
@@ -561,7 +561,7 @@ namespace MeshRenderer
                                 std::vector<int> triangles_temp;
                                 int vertices_count_before = out_vertices.size();
                                 int n_new_triangles = MarchingCubes::Polygonise(voxel,
-                                    isosurface_threshold * i_sign,
+                                    isovalue * i_sign,
                                     triangles_temp,
                                     out_vertices,
                                     i_sign > 0 ? orbital_color[0] : orbital_color[1]);
@@ -586,18 +586,22 @@ namespace MeshRenderer
                             }
                             else // Recursive
                             {
-                                int unitcell_division[3]{ 3,3,3 };
+                                int unitcell_division[3]{ 2,2,2 };
 
                                 bool success = renderOrbitalRecursive(frame,
                                     evulation_position,
                                     voxel_unit_cell * glm::vec3(1.0f / unitcell_division[0], 1.0f / unitcell_division[1], 1.0f / unitcell_division[2]),
                                     unitcell_division,
+                                    isovalue,
                                     layer - 1,
                                     out_vertices,
                                     out_indices);
 
                                 if (!success)
+                                {
+                                    delete[] evaluation_pool;
                                     return false;
+                                }
                             }
                         }
                 }
@@ -637,11 +641,12 @@ namespace MeshRenderer
         glm::vec3 bounding_box_grid_unitlength_v3{ bounding_box_grid_unitlength[0], bounding_box_grid_unitlength[1], bounding_box_grid_unitlength[2], };
 
         return renderOrbitalRecursive(frame,
-                                      bounding_box_origin_v3,
-                                      bounding_box_grid_unitlength_v3,
-                                      top_level_grid_dimension,
-                                      octree_level - 1,
-                                      out_vertices,
-                                      out_indices);
+            bounding_box_origin_v3,
+            bounding_box_grid_unitlength_v3,
+            top_level_grid_dimension,
+            isosurface_threshold,
+            octree_level - 1,
+            out_vertices,
+            out_indices);
     }
 }
