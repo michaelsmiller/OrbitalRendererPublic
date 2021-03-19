@@ -309,7 +309,7 @@ namespace MarchingCubes
         float val[8];
     };
 
-    int Polygonise(GridCell Grid, float isovalue, std::vector<int>& Triangles, std::vector<Vertex>& Vertices, glm::vec3 color)
+    int Polygonise(const GridCell Grid, const float isovalue, std::vector<int>& Triangles, std::vector<Vertex>& Vertices, const glm::vec3 color)
     {
         glm::vec3 VertexList[12];
         glm::vec3 NewVertexList[12];
@@ -403,9 +403,9 @@ namespace MeshRenderer
 {
     const float bond_radius = 0.3;
 
-    bool renderMolecule(MoleculeStruct::MolecularDataOneFrame* frame,
-        std::vector<Vertex>& out_vertices,
-        std::vector<uint32_t>& out_indices)
+    bool renderMolecule(const MoleculeStruct::MolecularDataOneFrame* const frame,
+                        std::vector<Vertex>& out_vertices,
+                        std::vector<uint32_t>& out_indices)
     {
         int triangle_offset = 0;
         for (int i_atom = 0; i_atom < frame->n_atom; i_atom++)
@@ -495,7 +495,116 @@ namespace MeshRenderer
     const float isosurface_threshold = 0.1f;
     const glm::vec3 orbital_color[2]{ glm::vec3(1,0,0), glm::vec3(0,0,1) };
 
-    bool renderOrbital(MoleculeStruct::MolecularDataOneFrame* frame,
+    bool renderOrbitalRecursive(const MoleculeStruct::MolecularDataOneFrame* const frame,
+                                const glm::vec3 voxel_origin,
+                                const glm::vec3 voxel_unit_cell,
+                                const int voxel_grid_dimension[3],
+                                const int layer,
+                                std::vector<Vertex>& out_vertices,
+                                std::vector<uint32_t>& out_indices)
+    {
+
+        float* evaluation_pool = new float[voxel_grid_dimension[0] * voxel_grid_dimension[1] * voxel_grid_dimension[2]];
+
+        for (int i_x = 0; i_x < voxel_grid_dimension[0]; i_x++)
+            for (int i_y = 0; i_y < voxel_grid_dimension[1]; i_y++)
+                for (int i_z = 0; i_z < voxel_grid_dimension[2]; i_z++)
+                {
+                    int i_pool = i_x * voxel_grid_dimension[1] * voxel_grid_dimension[2] + i_y * voxel_grid_dimension[2] + i_z;
+                    float evulation_position[3]{ voxel_origin.x + i_x * voxel_unit_cell.x,
+                                                 voxel_origin.y + i_y * voxel_unit_cell.y,
+                                                 voxel_origin.z + i_z * voxel_unit_cell.z, };
+                    evaluation_pool[i_pool] = MoleculeKernel::evaluateOrbital(evulation_position, frame);
+                }
+
+        for (int i_x = 0; i_x < voxel_grid_dimension[0] - 1; i_x++)
+            for (int i_y = 0; i_y < voxel_grid_dimension[1] - 1; i_y++)
+                for (int i_z = 0; i_z < voxel_grid_dimension[2] - 1; i_z++)
+                {
+                    float evaluation_voxel[8];
+                    for (int i_x_voxel = 0; i_x_voxel < 2; i_x_voxel++)
+                        for (int i_y_voxel = 0; i_y_voxel < 2; i_y_voxel++)
+                            for (int i_z_voxel = 0; i_z_voxel < 2; i_z_voxel++)
+                            {
+                                int i_pool = (i_x + i_x_voxel) * voxel_grid_dimension[1] * voxel_grid_dimension[2]
+                                    + (i_y + i_y_voxel) * voxel_grid_dimension[2]
+                                    + i_z + i_z_voxel;
+                                int i_voxel = i_x_voxel * 4 + i_y_voxel * 2 + i_z_voxel;
+
+                                evaluation_voxel[i_voxel] = evaluation_pool[i_pool];
+                            }
+
+                    float evaluation_max = evaluation_voxel[0], evaluation_min = evaluation_voxel[0];
+                    for (int i = 1; i < 8; i++)
+                    {
+                        evaluation_max = fmaxf(evaluation_max, evaluation_voxel[i]);
+                        evaluation_min = fminf(evaluation_min, evaluation_voxel[i]);
+                    }
+
+                    for (int i_sign = 1; i_sign >= -1; i_sign -= 2)
+                        if (evaluation_min < isosurface_threshold * i_sign && isosurface_threshold * i_sign < evaluation_max)
+                        {
+                            glm::vec3 evulation_position = voxel_origin + glm::vec3(i_x, i_y, i_z) * voxel_unit_cell;
+
+                            if (layer == octree_level - 1) // Resolve
+                            {
+                                MarchingCubes::GridCell voxel{};
+                                for (int i_x_voxel = 0; i_x_voxel < 2; i_x_voxel++)
+                                    for (int i_y_voxel = 0; i_y_voxel < 2; i_y_voxel++)
+                                        for (int i_z_voxel = 0; i_z_voxel < 2; i_z_voxel++)
+                                        {
+                                            int i_voxel = i_x_voxel * 4 + i_y_voxel * 2 + i_z_voxel;
+                                            voxel.p[i_voxel] = evulation_position + glm::vec3(i_x_voxel, i_y_voxel, i_z_voxel) * voxel_unit_cell;
+                                            voxel.val[i_voxel] = evaluation_voxel[i_voxel];
+                                        }
+
+                                std::vector<int> triangles_temp;
+                                int vertices_count_before = out_vertices.size();
+                                int n_new_triangles = MarchingCubes::Polygonise(voxel,
+                                    isosurface_threshold * i_sign,
+                                    triangles_temp,
+                                    out_vertices,
+                                    i_sign > 0 ? orbital_color[0] : orbital_color[1]);
+
+                                if (n_new_triangles * 3 * 2 + vertices_count_before > UINT32_MAX)
+                                {
+                                    std::cout << "Too many vertices in your mesh!" << std::endl;
+                                    delete[] evaluation_pool;
+                                    return false;
+                                }
+
+                                for (int i = 0; i < n_new_triangles; i++)
+                                {
+                                    out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
+                                    out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
+                                    out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
+                                    // Double sided
+                                    out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
+                                    out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
+                                    out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
+                                }
+                            }
+                            else // Recursive
+                            {
+                                int unitcell_division[3]{ 2,2,2 };
+
+                                renderOrbitalRecursive(frame,
+                                    evulation_position,
+                                    voxel_unit_cell * glm::vec3(1.0f / unitcell_division[0], 1.0f / unitcell_division[1], 1.0f / unitcell_division[2]),
+                                    unitcell_division,
+                                    layer + 1,
+                                    out_vertices,
+                                    out_indices);
+                            }
+                        }
+                }
+
+        delete[] evaluation_pool;
+
+        return true;
+    }
+
+    bool renderOrbital(const MoleculeStruct::MolecularDataOneFrame* const frame,
                        std::vector<Vertex>& out_vertices,
                        std::vector<uint32_t>& out_indices)
     {
@@ -521,93 +630,15 @@ namespace MeshRenderer
             bounding_box_grid_unitlength[i_xyz] = bounding_box_extension[i_xyz] / top_level_grid_dimension[i_xyz];
         }
         // printf("Top level grid: %d, %d, %d\n", top_level_grid_dimension[0], top_level_grid_dimension[1], top_level_grid_dimension[2]);
+        glm::vec3 bounding_box_origin_v3{ bounding_box_origin[0], bounding_box_origin[1], bounding_box_origin[2], };
+        glm::vec3 bounding_box_grid_unitlength_v3{ bounding_box_grid_unitlength[0], bounding_box_grid_unitlength[1], bounding_box_grid_unitlength[2], };
 
-        float* evaluation_pool = new float[top_level_grid_dimension[0] * top_level_grid_dimension[1] * top_level_grid_dimension[2]];
-
-        for (int i_x = 0; i_x < top_level_grid_dimension[0]; i_x++)
-            for (int i_y = 0; i_y < top_level_grid_dimension[1]; i_y++)
-                for (int i_z = 0; i_z < top_level_grid_dimension[2]; i_z++)
-                {
-                    int i_pool = i_x * top_level_grid_dimension[1] * top_level_grid_dimension[2] + i_y * top_level_grid_dimension[2] + i_z;
-                    float evulation_position[3]{ bounding_box_origin[0] + i_x * bounding_box_grid_unitlength[0],
-                                                 bounding_box_origin[1] + i_y * bounding_box_grid_unitlength[1],
-                                                 bounding_box_origin[2] + i_z * bounding_box_grid_unitlength[2], };
-                    evaluation_pool[i_pool] = MoleculeKernel::evaluateOrbital(evulation_position, frame);
-                }
-
-        for (int i_x = 0; i_x < top_level_grid_dimension[0] - 1; i_x++)
-            for (int i_y = 0; i_y < top_level_grid_dimension[1] - 1; i_y++)
-                for (int i_z = 0; i_z < top_level_grid_dimension[2] - 1; i_z++)
-                {
-                    float evaluation_voxel[8];
-                    for (int i_x_voxel = 0; i_x_voxel < 2; i_x_voxel++)
-                        for (int i_y_voxel = 0; i_y_voxel < 2; i_y_voxel++)
-                            for (int i_z_voxel = 0; i_z_voxel < 2; i_z_voxel++)
-                            {
-                                int i_pool = (i_x + i_x_voxel) * top_level_grid_dimension[1] * top_level_grid_dimension[2]
-                                    + (i_y + i_y_voxel) * top_level_grid_dimension[2]
-                                    + i_z + i_z_voxel;
-                                int i_voxel = i_x_voxel * 4 + i_y_voxel * 2 + i_z_voxel;
-
-                                evaluation_voxel[i_voxel] = evaluation_pool[i_pool];
-                            }
-
-                    float evaluation_max = evaluation_voxel[0], evaluation_min = evaluation_voxel[0];
-                    for (int i = 1; i < 8; i++)
-                    {
-                        evaluation_max = fmaxf(evaluation_max, evaluation_voxel[i]);
-                        evaluation_min = fminf(evaluation_min, evaluation_voxel[i]);
-                    }
-
-                    for (int i_sign = 1; i_sign >= -1; i_sign -= 2)
-                        if (evaluation_min < isosurface_threshold * i_sign && isosurface_threshold * i_sign < evaluation_max)
-                        {
-                            glm::vec3 evulation_position{ bounding_box_origin[0] + i_x * bounding_box_grid_unitlength[0],
-                                                          bounding_box_origin[1] + i_y * bounding_box_grid_unitlength[1],
-                                                          bounding_box_origin[2] + i_z * bounding_box_grid_unitlength[2], };
-
-                            MarchingCubes::GridCell voxel{};
-                            for (int i_x_voxel = 0; i_x_voxel < 2; i_x_voxel++)
-                                for (int i_y_voxel = 0; i_y_voxel < 2; i_y_voxel++)
-                                    for (int i_z_voxel = 0; i_z_voxel < 2; i_z_voxel++)
-                                    {
-                                        int i_voxel = i_x_voxel * 4 + i_y_voxel * 2 + i_z_voxel;
-                                        voxel.p[i_voxel] = evulation_position + glm::vec3(i_x_voxel * bounding_box_grid_unitlength[0],
-                                                                                          i_y_voxel * bounding_box_grid_unitlength[1],
-                                                                                          i_z_voxel * bounding_box_grid_unitlength[2]);
-                                        voxel.val[i_voxel] = evaluation_voxel[i_voxel];
-                                    }
-
-                            std::vector<int> triangles_temp;
-                            int vertices_count_before = out_vertices.size();
-                            int n_new_triangles = MarchingCubes::Polygonise(voxel,
-                                                                            isosurface_threshold * i_sign,
-                                                                            triangles_temp,
-                                                                            out_vertices,
-                                                                            i_sign > 0 ? orbital_color[0] : orbital_color[1]);
-
-                            if (n_new_triangles * 3 * 2 + vertices_count_before > UINT32_MAX)
-                            {
-                                std::cout << "Too many vertices in your mesh!" << std::endl;
-                                delete[] evaluation_pool;
-                                return false;
-                            }
-
-                            for (int i = 0; i < n_new_triangles; i++)
-                            {
-                                out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
-                                out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
-                                out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
-                                // Double sided
-                                out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
-                                out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
-                                out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
-                            }
-                        }
-                }
-
-        delete[] evaluation_pool;
-
-        return true;
+        return renderOrbitalRecursive(frame,
+                                      bounding_box_origin_v3,
+                                      bounding_box_grid_unitlength_v3,
+                                      top_level_grid_dimension,
+                                      0,
+                                      out_vertices,
+                                      out_indices);
     }
 }
