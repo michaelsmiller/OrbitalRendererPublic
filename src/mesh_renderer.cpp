@@ -492,7 +492,7 @@ namespace MeshRenderer
     const float bounding_box_additional_extension = 3.0f;
     const float top_level_minimal_resolution = 0.5f;
     const int octree_level = 3;
-    const float isosurface_threshold = 0.1f;
+    const float isosurface_threshold = 0.08f;
     const glm::vec3 orbital_color[2]{ glm::vec3(1,0,0), glm::vec3(0,0,1) };
 
     bool renderOrbitalRecursive(const MoleculeStruct::MolecularDataOneFrame* const frame,
@@ -566,7 +566,7 @@ namespace MeshRenderer
                                     out_vertices,
                                     i_sign > 0 ? orbital_color[0] : orbital_color[1]);
 
-                                if (n_new_triangles * 3 * 2 + vertices_count_before > UINT32_MAX)
+                                if (n_new_triangles * 3 + vertices_count_before > UINT32_MAX)
                                 {
                                     std::cout << "Too many vertices in your mesh!" << std::endl;
                                     delete[] evaluation_pool;
@@ -578,10 +578,6 @@ namespace MeshRenderer
                                     out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
                                     out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
                                     out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
-                                    // Double sided
-                                    out_indices.push_back(triangles_temp[i * 3 + 0] + vertices_count_before);
-                                    out_indices.push_back(triangles_temp[i * 3 + 2] + vertices_count_before);
-                                    out_indices.push_back(triangles_temp[i * 3 + 1] + vertices_count_before);
                                 }
                             }
                             else // Recursive
@@ -590,7 +586,7 @@ namespace MeshRenderer
 
                                 bool success = renderOrbitalRecursive(frame,
                                     evulation_position,
-                                    voxel_unit_cell * glm::vec3(1.0f / unitcell_division[0], 1.0f / unitcell_division[1], 1.0f / unitcell_division[2]),
+                                    voxel_unit_cell * 0.5f,
                                     unitcell_division,
                                     isovalue,
                                     layer - 1,
