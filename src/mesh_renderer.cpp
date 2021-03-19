@@ -546,7 +546,7 @@ namespace MeshRenderer
                         {
                             glm::vec3 evulation_position = voxel_origin + glm::vec3(i_x, i_y, i_z) * voxel_unit_cell;
 
-                            if (layer == octree_level - 1) // Resolve
+                            if (layer == 0) // Resolve
                             {
                                 MarchingCubes::GridCell voxel{};
                                 for (int i_x_voxel = 0; i_x_voxel < 2; i_x_voxel++)
@@ -586,15 +586,18 @@ namespace MeshRenderer
                             }
                             else // Recursive
                             {
-                                int unitcell_division[3]{ 2,2,2 };
+                                int unitcell_division[3]{ 3,3,3 };
 
-                                renderOrbitalRecursive(frame,
+                                bool success = renderOrbitalRecursive(frame,
                                     evulation_position,
                                     voxel_unit_cell * glm::vec3(1.0f / unitcell_division[0], 1.0f / unitcell_division[1], 1.0f / unitcell_division[2]),
                                     unitcell_division,
-                                    layer + 1,
+                                    layer - 1,
                                     out_vertices,
                                     out_indices);
+
+                                if (!success)
+                                    return false;
                             }
                         }
                 }
@@ -637,7 +640,7 @@ namespace MeshRenderer
                                       bounding_box_origin_v3,
                                       bounding_box_grid_unitlength_v3,
                                       top_level_grid_dimension,
-                                      0,
+                                      octree_level - 1,
                                       out_vertices,
                                       out_indices);
     }
