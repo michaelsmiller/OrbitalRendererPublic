@@ -297,9 +297,10 @@ namespace MarchingCubes
         {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
         {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1} };
 
-    glm::vec3 VertexInterp(const glm::vec3& p1, const glm::vec3& p2, float valp1, float valp2)
+    glm::vec3 VertexInterp(const glm::vec3& p1, const glm::vec3& p2, float valp1, float valp2, float isolevel)
     {
-        return (p1 + (-valp1 / (valp2 - valp1)) * (p2 - p1));
+        float t = (isolevel - valp1) / (valp2 - valp1);
+        return p1 * t + p2 * (1.0f - t);
     }
 
     struct GridCell
@@ -308,7 +309,7 @@ namespace MarchingCubes
         float val[8];
     };
 
-    int Polygonise(GridCell Grid, float threshold, std::vector<int>& Triangles, std::vector<Vertex>& Vertices, glm::vec3 color)
+    int Polygonise(GridCell Grid, float isovalue, std::vector<int>& Triangles, std::vector<Vertex>& Vertices, glm::vec3 color)
     {
         glm::vec3 VertexList[12];
         glm::vec3 NewVertexList[12];
@@ -317,14 +318,14 @@ namespace MarchingCubes
         //Determine the index into the edge table which
         //tells us which vertices are inside of the surface
         int CubeIndex = 0;
-        if (Grid.val[0] < threshold) CubeIndex |= 1;
-        if (Grid.val[1] < threshold) CubeIndex |= 2;
-        if (Grid.val[2] < threshold) CubeIndex |= 4;
-        if (Grid.val[3] < threshold) CubeIndex |= 8;
-        if (Grid.val[4] < threshold) CubeIndex |= 16;
-        if (Grid.val[5] < threshold) CubeIndex |= 32;
-        if (Grid.val[6] < threshold) CubeIndex |= 64;
-        if (Grid.val[7] < threshold) CubeIndex |= 128;
+        if (Grid.val[0] < isovalue) CubeIndex |= 1;
+        if (Grid.val[1] < isovalue) CubeIndex |= 2;
+        if (Grid.val[2] < isovalue) CubeIndex |= 4;
+        if (Grid.val[3] < isovalue) CubeIndex |= 8;
+        if (Grid.val[4] < isovalue) CubeIndex |= 16;
+        if (Grid.val[5] < isovalue) CubeIndex |= 32;
+        if (Grid.val[6] < isovalue) CubeIndex |= 64;
+        if (Grid.val[7] < isovalue) CubeIndex |= 128;
 
         //Cube is entirely in/out of the surface
         if (edgeTable[CubeIndex] == 0)
@@ -333,40 +334,40 @@ namespace MarchingCubes
         //Find the vertices where the surface intersects the cube
         if (edgeTable[CubeIndex] & 1)
             VertexList[0] =
-            VertexInterp(Grid.p[0], Grid.p[1], Grid.val[0], Grid.val[1]);
+            VertexInterp(Grid.p[0], Grid.p[1], Grid.val[0], Grid.val[1], isovalue);
         if (edgeTable[CubeIndex] & 2)
             VertexList[1] =
-            VertexInterp(Grid.p[1], Grid.p[2], Grid.val[1], Grid.val[2]);
+            VertexInterp(Grid.p[1], Grid.p[2], Grid.val[1], Grid.val[2], isovalue);
         if (edgeTable[CubeIndex] & 4)
             VertexList[2] =
-            VertexInterp(Grid.p[2], Grid.p[3], Grid.val[2], Grid.val[3]);
+            VertexInterp(Grid.p[2], Grid.p[3], Grid.val[2], Grid.val[3], isovalue);
         if (edgeTable[CubeIndex] & 8)
             VertexList[3] =
-            VertexInterp(Grid.p[3], Grid.p[0], Grid.val[3], Grid.val[0]);
+            VertexInterp(Grid.p[3], Grid.p[0], Grid.val[3], Grid.val[0], isovalue);
         if (edgeTable[CubeIndex] & 16)
             VertexList[4] =
-            VertexInterp(Grid.p[4], Grid.p[5], Grid.val[4], Grid.val[5]);
+            VertexInterp(Grid.p[4], Grid.p[5], Grid.val[4], Grid.val[5], isovalue);
         if (edgeTable[CubeIndex] & 32)
             VertexList[5] =
-            VertexInterp(Grid.p[5], Grid.p[6], Grid.val[5], Grid.val[6]);
+            VertexInterp(Grid.p[5], Grid.p[6], Grid.val[5], Grid.val[6], isovalue);
         if (edgeTable[CubeIndex] & 64)
             VertexList[6] =
-            VertexInterp(Grid.p[6], Grid.p[7], Grid.val[6], Grid.val[7]);
+            VertexInterp(Grid.p[6], Grid.p[7], Grid.val[6], Grid.val[7], isovalue);
         if (edgeTable[CubeIndex] & 128)
             VertexList[7] =
-            VertexInterp(Grid.p[7], Grid.p[4], Grid.val[7], Grid.val[4]);
+            VertexInterp(Grid.p[7], Grid.p[4], Grid.val[7], Grid.val[4], isovalue);
         if (edgeTable[CubeIndex] & 256)
             VertexList[8] =
-            VertexInterp(Grid.p[0], Grid.p[4], Grid.val[0], Grid.val[4]);
+            VertexInterp(Grid.p[0], Grid.p[4], Grid.val[0], Grid.val[4], isovalue);
         if (edgeTable[CubeIndex] & 512)
             VertexList[9] =
-            VertexInterp(Grid.p[1], Grid.p[5], Grid.val[1], Grid.val[5]);
+            VertexInterp(Grid.p[1], Grid.p[5], Grid.val[1], Grid.val[5], isovalue);
         if (edgeTable[CubeIndex] & 1024)
             VertexList[10] =
-            VertexInterp(Grid.p[2], Grid.p[6], Grid.val[2], Grid.val[6]);
+            VertexInterp(Grid.p[2], Grid.p[6], Grid.val[2], Grid.val[6], isovalue);
         if (edgeTable[CubeIndex] & 2048)
             VertexList[11] =
-            VertexInterp(Grid.p[3], Grid.p[7], Grid.val[3], Grid.val[7]);
+            VertexInterp(Grid.p[3], Grid.p[7], Grid.val[3], Grid.val[7], isovalue);
 
         int NewVertexCount = 0;
         for (int i = 0; i < 12; i++)
@@ -491,7 +492,7 @@ namespace MeshRenderer
     const float bounding_box_additional_extension = 3.0f;
     const float top_level_minimal_resolution = 0.5f;
     const int octree_level = 3;
-    const float isosurface_threshold = 0.15f;
+    const float isosurface_threshold = 0.1f;
     const glm::vec3 orbital_color[2]{ glm::vec3(1,0,0), glm::vec3(0,0,1) };
 
     bool renderOrbital(MoleculeStruct::MolecularDataOneFrame* frame,
